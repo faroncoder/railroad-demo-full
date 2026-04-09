@@ -1,10 +1,10 @@
 {
   "name": "railroad-demo-full",
-  "version": "1.6.2",
+  "version": "1.6.1",
   "description": "Complete Railroad ecosystem demo - proves CDN, npm, and webpack builds",
   "main": "index.html",
   "scripts": {
-    "start": "npx http-server -p 3000",
+    "start": "npx http-server dist -p 3000",
     "build": "webpack --mode production",
     "dev": "webpack serve --mode development --open",
     "test": "echo \"Demo package - no tests needed\" && exit 0"
@@ -20,9 +20,9 @@
   "author": "Faron Wheeler",
   "license": "MIT",
   "dependencies": {
-    "railroad-loader": "^1.0.1",
-    "railroad-runtime": "^1.0.0",
-    "railroad-toasts": "^1.0.1"
+    "railroad-loader": "^1.6.0",
+    "railroad-runtime": "^1.6.0",
+    "railroad-toasts": "^1.6.0"
   },
   "devDependencies": {
     "html-webpack-plugin": "^5.5.4",
