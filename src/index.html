@@ -223,6 +223,52 @@
       font-weight: 600;
       z-index: 1000;
     }
+    
+    .core-rule {
+      text-align: center;
+      margin: -20px 0 40px 0;
+      padding: 15px 20px;
+      background: rgba(88,166,255,0.1);
+      border-left: 4px solid #58a6ff;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: #9ca3af;
+    }
+    
+    .core-rule strong {
+      color: #58a6ff;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .try-this {
+      background: #0d1117;
+      border: 2px solid #58a6ff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .try-this-header {
+      color: #58a6ff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .try-this-code {
+      background: #161b22;
+      padding: 12px;
+      border-radius: 4px;
+      color: #7ee787;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .try-this-code:hover {
+      background: #1f2937;
+    }
   </style>
 </head>
 <body>
@@ -233,6 +279,10 @@
       <h1>🚂 Railroad Demo</h1>
       <p>Governed Execution for Dynamic UI</p>
       <p class="tagline">Click anything. Swap anything. <strong>It keeps working.</strong></p>
+    </div>
+    
+    <div class="core-rule">
+      No framework. No re-initialization hacks. Just one rule: <strong>RAILROAD.rebind(...)</strong>
     </div>
 
     <div class="grid">
@@ -266,12 +316,12 @@
     <div class="zone" style="margin-bottom: 20px;">
       <h2><span class="zone-icon">🔄</span> Dynamic Content Swap</h2>
       <p class="description">
-        Load new content dynamically. New buttons still work because 
+        Load new content dynamically or manually break the DOM. New buttons still work because 
         <strong>railroad-runtime</strong> rebinds automatically.
       </p>
       <button onclick="loadPanelA()" class="btn btn-success">Load Panel A</button>
       <button onclick="loadPanelB()" class="btn btn-info">Load Panel B</button>
-      <button onclick="manualUpdate()" class="btn btn-warn">Manual DOM Update</button>
+      <button onclick="manualUpdate()" class="btn btn-warn">Break the DOM (then fix it)</button>
       
       <div id="swap-target">
         <div class="placeholder">← Click a button above to load content</div>
@@ -283,7 +333,13 @@
     <div class="zone">
       <h2><span class="zone-icon">🔍</span> Debug Panel</h2>
       <p class="description">Live view of what's happening under the hood.</p>
-      <div class="debug-panel">
+      
+      <div class="try-this">
+        <div class="try-this-header">👉 Try This in Console:</div>
+        <div class="try-this-code" onclick="navigator.clipboard.writeText('toast(\"Hello\", \"success\")'); toast('Copied to clipboard!', 'info')">toast("Hello", "success")</div>
+      </div>
+      
+      <div class="debug-panel" style="margin-top: 15px;">
         <div class="debug-line">
           <span class="debug-label">Packages Loaded:</span>
           <span class="debug-value" id="debug-packages">Checking...</span>

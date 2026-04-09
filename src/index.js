@@ -5,6 +5,7 @@ import RailroadLoader from 'railroad-loader';
 
 // Expose to window for inline event handlers
 window.RAILROAD = RAILROAD;
+window.RailroadToasts = RailroadToasts;  // For debug panel detection
 window.toast = RailroadToasts.toast;
 window.confirm = RailroadToasts.confirm;
 window.RailroadLoader = RailroadLoader;
@@ -90,8 +91,8 @@ window.manualUpdate = function() {
   target.innerHTML = `
     <div class="swapped-panel panel-manual">
       <h3>⚠️ Manual Update</h3>
-      <p style="color: #d1d5db; margin: 15px 0;">This was inserted via <code>innerHTML</code>.</p>
-      <p style="color: #d1d5db;">We called <code>RAILROAD.rebind()</code> explicitly:</p>
+      <p style="color: #d1d5db; margin: 15px 0;">This was inserted via <code>innerHTML</code> (breaking the DOM).</p>
+      <p style="color: #d1d5db;">But we called <code>RAILROAD.rebind()</code> to fix it:</p>
       <button onclick="toast('Manual update toast works!', 'warn')" class="btn btn-warn">Toast from Manual</button>
       <button onclick="toast('Proof: rebind() made this work', 'info')" class="btn btn-info">Another Toast</button>
       <div class="proof-text">
@@ -101,7 +102,7 @@ window.manualUpdate = function() {
   `;
   
   RAILROAD.rebind(target, 'manual-demo-update');
-  toast('Manual DOM update complete', 'success');
+  toast('DOM broken and fixed!', 'success');
 };
 
 // Debug panel
