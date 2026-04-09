@@ -1,6 +1,6 @@
 {
   "name": "railroad-demo-full",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Complete Railroad ecosystem demo - proves CDN, npm, and webpack builds",
   "main": "index.html",
   "scripts": {
