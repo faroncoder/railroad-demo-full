@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Railroad Demo - Governed Execution Proof</title>
+  
+  <!-- Railroad Packages from CDN -->
+  <script src="https://unpkg.com/railroad-runtime@1.0.0/dist/railroad-runtime.min.js"></script>
+  <script src="https://unpkg.com/railroad-toasts@1.0.1/dist/toasts.min.js"></script>
+  <script src="https://unpkg.com/railroad-loader@1.0.1/dist/loader.min.js"></script>
+  
+  <!-- HTMX for swap demo -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #1f6feb 0%, #8957e5 100%);
+      border-radius: 12px;
+    }
+    
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 1.5rem;
+      opacity: 0.9;
+    }
+    
+    .tagline {
+      font-size: 1.1rem;
+      color: #9ca3af;
+      margin-top: 10px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .zone {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .zone h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .zone-icon {
+      font-size: 2rem;
+    }
+    
+    .description {
+      color: #9ca3af;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    
+    .btn {
+      background: #238636;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      margin: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-block;
+    }
+    
+    .btn:hover {
+      background: #2ea043;
+      transform: translateY(-2px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-success { background: #238636; }
+    .btn-success:hover { background: #2ea043; }
+    
+    .btn-error { background: #da3633; }
+    .btn-error:hover { background: #e5534b; }
+    
+    .btn-warn { background: #d29922; }
+    .btn-warn:hover { background: #e2a336; }
+    
+    .btn-info { background: #1f6feb; }
+    .btn-info:hover { background: #388bfd; }
+    
+    .btn-secondary {
+      background: #30363d;
+      color: #e6edf3;
+    }
+    
+    .btn-secondary:hover {
+      background: #3d444d;
+    }
+    
+    #swap-target {
+      min-height: 200px;
+      margin-top: 20px;
+      padding: 20px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+    }
+    
+    .placeholder {
+      text-align: center;
+      color: #6e7681;
+      padding: 60px 20px;
+    }
+    
+    .debug-panel {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+    
+    .debug-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      padding: 8px;
+      background: #161b22;
+      border-radius: 4px;
+    }
+    
+    .debug-label {
+      color: #7ee787;
+    }
+    
+    .debug-value {
+      color: #58a6ff;
+      font-weight: bold;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: rgba(88,166,255,0.1);
+      border: 1px solid #58a6ff;
+      color: #58a6ff;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+    
+    .swapped-panel {
+      padding: 25px;
+      border-radius: 8px;
+      border: 2px solid;
+    }
+    
+    .panel-a {
+      background: rgba(34,197,94,0.1);
+      border-color: #22c55e;
+    }
+    
+    .panel-a h3 { color: #22c55e; }
+    
+    .panel-b {
+      background: rgba(59,130,246,0.1);
+      border-color: #3b82f6;
+    }
+    
+    .panel-b h3 { color: #3b82f6; }
+    
+    .panel-manual {
+      background: rgba(217,119,6,0.1);
+      border-color: #d97706;
+    }
+    
+    .panel-manual h3 { color: #d97706; }
+    
+    .proof-text {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 15px;
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+    }
+    
+    .mode-badge {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #238636;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="mode-badge">📦 CDN Mode</div>
+  
+  <div class="container">
+    <div class="header">
+      <h1>🚂 Railroad Demo</h1>
+      <p>Governed Execution for Dynamic UI</p>
+      <p class="tagline">Click anything. Swap anything. <strong>It keeps working.</strong></p>
+    </div>
+
+    <div class="grid">
+      <!-- Toast Zone -->
+      <div class="zone">
+        <h2><span class="zone-icon">🎨</span> Toast Notifications</h2>
+        <p class="description">
+          Click buttons to trigger toasts. They work immediately because 
+          <strong>railroad-toasts</strong> is loaded.
+        </p>
+        <button onclick="toast('Operation successful!', 'success')" class="btn btn-success">Success</button>
+        <button onclick="toast('Something went wrong', 'error')" class="btn btn-error">Error</button>
+        <button onclick="toast('Please review this', 'warn')" class="btn btn-warn">Warning</button>
+        <button onclick="toast('Just FYI', 'info')" class="btn btn-info">Info</button>
+        <div class="badge">✓ railroad-toasts@1.0.1</div>
+      </div>
+
+      <!-- Loader Zone -->
+      <div class="zone">
+        <h2><span class="zone-icon">⏳</span> Loader Control</h2>
+        <p class="description">
+          Manually trigger the loader. HTMX swaps trigger it automatically.
+        </p>
+        <button onclick="demoLoader()" class="btn btn-info">Show Loader (2s)</button>
+        <button onclick="demoCustomLoader()" class="btn btn-secondary">Custom Messages</button>
+        <div class="badge">✓ railroad-loader@1.0.1</div>
+      </div>
+    </div>
+
+    <!-- Swap Demo Zone -->
+    <div class="zone" style="margin-bottom: 20px;">
+      <h2><span class="zone-icon">🔄</span> HTMX Swap Test</h2>
+      <p class="description">
+        Load new content via HTMX or manual DOM updates. New buttons still work because 
+        <strong>railroad-runtime</strong> rebinds automatically.
+      </p>
+      <button onclick="loadPanelA()" class="btn btn-success">Load Panel A</button>
+      <button onclick="loadPanelB()" class="btn btn-info">Load Panel B</button>
+      <button onclick="manualUpdate()" class="btn btn-warn">Manual DOM Update</button>
+      
+      <div id="swap-target">
+        <div class="placeholder">← Click a button above to load content</div>
+      </div>
+      <div class="badge">✓ railroad-runtime@1.0.0</div>
+    </div>
+
+    <!-- Debug Zone -->
+    <div class="zone">
+      <h2><span class="zone-icon">🔍</span> Debug Panel</h2>
+      <p class="description">Live view of what's happening under the hood.</p>
+      <div class="debug-panel">
+        <div class="debug-line">
+          <span class="debug-label">Packages Loaded:</span>
+          <span class="debug-value" id="debug-packages">Checking...</span>
+        </div>
+        <div class="debug-line">
+          <span class="debug-label">Last Rebind Source:</span>
+          <span class="debug-value" id="debug-rebind">None</span>
+        </div>
+        <div class="debug-line">
+          <span class="debug-label">Total Rebinds:</span>
+          <span class="debug-value" id="debug-count">0</span>
+        </div>
+        <div class="debug-line">
+          <span class="debug-label">Runtime Ready:</span>
+          <span class="debug-value" id="debug-runtime">No</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Demo functions
+    function demoLoader() {
+      RailroadLoader.show(['Loading demo...', 'Processing...', 'Almost done...']);
+      setTimeout(() => {
+        RailroadLoader.hide();
+        toast('Loader demo complete', 'success');
+      }, 2000);
+    }
+
+    function demoCustomLoader() {
+      RailroadLoader.show([
+        'Step 1: Initializing...',
+        'Step 2: Fetching data...',
+        'Step 3: Rendering...',
+        'Step 4: Complete!'
+      ]);
+      setTimeout(() => {
+        RailroadLoader.hide();
+        toast('Custom loader sequence done', 'info');
+      }, 3000);
+    }
+
+    function loadPanelA() {
+      const target = document.getElementById('swap-target');
+      const randomId = Math.floor(Math.random() * 10000);
+      
+      RailroadLoader.show(['Loading Panel A...']);
+      setTimeout(() => {
+        target.innerHTML = `
+          <div class="swapped-panel panel-a">
+            <h3>✅ Panel A Loaded</h3>
+            <p style="color: #d1d5db; margin: 15px 0;">This content was swapped dynamically.</p>
+            <p style="color: #d1d5db;">But the behaviors still work:</p>
+            <button onclick="toast('Panel A toast works!', 'success')" class="btn btn-success">Toast from Panel A</button>
+            <button onclick="toast('Confirmed: behaviors survived swap', 'info')" class="btn btn-info">Another Toast</button>
+            <div class="proof-text">
+              <strong>Proof:</strong> These buttons were created after the page loaded, 
+              but toast() still works because Railroad Runtime survived the swap.
+              <br><strong>Random ID:</strong> ${randomId}
+            </div>
+          </div>
+        `;
+        RAILROAD.rebind(target, 'load-panel-a');
+        RailroadLoader.hide();
+      }, 500);
+    }
+
+    function loadPanelB() {
+      const target = document.getElementById('swap-target');
+      const randomId = Math.floor(Math.random() * 10000);
+      
+      RailroadLoader.show(['Loading Panel B...']);
+      setTimeout(() => {
+        target.innerHTML = `
+          <div class="swapped-panel panel-b">
+            <h3>🔵 Panel B Loaded</h3>
+            <p style="color: #d1d5db; margin: 15px 0;">Different content, same result.</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button onclick="toast('Success from B', 'success')" class="btn btn-success">Success</button>
+              <button onclick="toast('Error from B', 'error')" class="btn btn-error">Error</button>
+              <button onclick="toast('Warning from B', 'warn')" class="btn btn-warn">Warning</button>
+              <button onclick="toast('Info from B', 'info')" class="btn btn-info">Info</button>
+            </div>
+            <div class="proof-text">
+              <strong>Random number:</strong> ${randomId} 
+              (proves this is fresh dynamically-generated content)
+            </div>
+          </div>
+        `;
+        RAILROAD.rebind(target, 'load-panel-b');
+        RailroadLoader.hide();
+      }, 500);
+    }
+
+    function manualUpdate() {
+      const target = document.getElementById('swap-target');
+      const randomId = Math.floor(Math.random() * 10000);
+      
+      // Manual DOM mutation
+      target.innerHTML = `
+        <div class="swapped-panel panel-manual">
+          <h3>⚠️ Manual Update</h3>
+          <p style="color: #d1d5db; margin: 15px 0;">This was inserted via <code>innerHTML</code>.</p>
+          <p style="color: #d1d5db;">We called <code>RAILROAD.rebind()</code> explicitly:</p>
+          <button onclick="toast('Manual update toast works!', 'warn')" class="btn btn-warn">Toast from Manual</button>
+          <button onclick="toast('Proof: rebind() made this work', 'info')" class="btn btn-info">Another Toast</button>
+          <div class="proof-text">
+            <strong>ID:</strong> ${randomId} (proves this is fresh client-side content)
+          </div>
+        </div>
+      `;
+      
+      // CRITICAL: Call rebind after manual DOM mutation
+      RAILROAD.rebind(target, 'manual-demo-update');
+      toast('Manual DOM update complete', 'success');
+    }
+
+    // Debug panel updater
+    let rebindCount = 0;
+    
+    function updateDebug() {
+      const packages = [];
+      if (typeof window.RAILROAD !== 'undefined') packages.push('runtime');
+      if (typeof window.RailroadToasts !== 'undefined') packages.push('toasts');
+      if (typeof window.RailroadLoader !== 'undefined') packages.push('loader');
+      
+      document.getElementById('debug-packages').textContent = 
+        packages.length > 0 ? packages.join(', ') : 'None';
+      
+      document.getElementById('debug-runtime').textContent = 
+        window.RAILROAD && window.RAILROAD.initialized ? 'Yes' : 'No';
+    }
+
+    // Hook into RAILROAD to track rebinds
+    if (window.RAILROAD) {
+      const originalRebind = RAILROAD.rebind.bind(RAILROAD);
+      RAILROAD.rebind = function(root, source) {
+        rebindCount++;
+        document.getElementById('debug-rebind').textContent = source || 'unknown';
+        document.getElementById('debug-count').textContent = rebindCount;
+        return originalRebind(root, source);
+      };
+    }
+
+    // Initial debug update
+    setTimeout(updateDebug, 100);
+
+    console.log('%c🚂 Railroad Demo Ready', 'color: #58a6ff; font-size: 16px; font-weight: bold');
+    console.log('%cTry:', 'color: #9ca3af');
+    console.log('  toast("Hello", "success")');
+    console.log('  RailroadLoader.show()');
+    console.log('  RAILROAD.listModules()');
+  </script>
+</body>
+</html>

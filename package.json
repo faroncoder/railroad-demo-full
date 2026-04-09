@@ -1,0 +1,32 @@
+{
+  "name": "railroad-demo-full",
+  "version": "1.0.0",
+  "description": "Complete Railroad ecosystem demo - proves CDN, npm, and webpack builds",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 3000",
+    "build": "webpack --mode production",
+    "dev": "webpack serve --mode development --open"
+  },
+  "keywords": [
+    "railroad",
+    "demo",
+    "governed-execution",
+    "htmx",
+    "toast",
+    "loader"
+  ],
+  "author": "Faron Wheeler",
+  "license": "MIT",
+  "dependencies": {
+    "railroad-runtime": "^1.0.0",
+    "railroad-toasts": "^1.0.1",
+    "railroad-loader": "^1.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "html-webpack-plugin": "^5.5.4"
+  }
+}
